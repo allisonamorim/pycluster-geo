@@ -20,7 +20,6 @@ can later be used for geographic clusterization using K-means.
 * __pycluster/__
         Pycluster API module
 
-
 # Example Clusterization
 
 1. The following scripts execute a search for all gas stations around the [Lat,Long],
