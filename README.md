@@ -57,7 +57,6 @@ inside the 'tmp/' directory passed as parameter.
 
 <img src="img/SalvadorCity.png" width="600" alt="XY chart of the gas stations clusters in SSA"> 
 
-map_SalvadorCity
 - Maps:
 
 <img src="img/map_SalvadorCity.png" width="600" alt="Cluster map the gas stations in SSA"> 
