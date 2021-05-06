@@ -33,7 +33,7 @@ import json
 import time
 import os
 
-PYCLUSTER_COLORS = ['maroon','blue','green','orange','red','purple', 'violet', 'brown', 'teal', 'peru']
+PYCLUSTER_COLORS = ['maroon','blue','green','orange','red','purple', 'violet', 'brown', 'teal', 'peru','navy','springgreen','slategray','chocolate','darkolivegreen']
 
 def searchPlacesAPI(coordinates_list, keywords_list,
                     radius_m, output_file_name, 
@@ -95,36 +95,36 @@ def searchPlacesAPI(coordinates_list, keywords_list,
 
 def findClusters(coords, n_clusters=3):
     ''' findClusters
-        Agrupa um grupo de coordenadas em 'n_clusters' clusters,
-        calculando também a mediana e o indice de cada grupo.
-        Entradas:
-            coords:     matriz de coordenadas de entrada
-            n_clusters: número de clusters desejado (padrão=3)
-        Saídas:
+        Groups a set of coordinates into 'n_clusters' clusters,
+        also calculating the median and index of each group.
+        Inputs:
+            coords:     array of input coordinates
+            n_clusters: desired number of clusters (default = 3)
+        Output:
             [clusters, clindexes]
-            clusters:   conjunto de clusters encontrados
-            clindexes:  indice dos clusters encontrados
+            clusters:   set of clusters found
+            clindexes:  index of clusters found
     '''
-    # ajusta as coordenadas em 'n_clusters' grupos (clusters)
+    # adjust the coordinates in 'n_clusters' groups (clusters)
     km_coords = KMeans(n_clusters=n_clusters).fit(coords)
-    clusters = km_coords.cluster_centers_ # centro de cada cluster
-    clindexes = km_coords.predict(coords) # indice de cada cluster
+    clusters = km_coords.cluster_centers_ # center of each cluster
+    clindexes = km_coords.predict(coords) # index of each cluster
     return clusters, clindexes
 
 def plotClusterCharts(coords, coords_mean,
                       ellipse_mean, clusters, clindexes, 
                       n_clusters=3, regionName=None, saveDir=None):
     ''' plotClusterCharts()
-        Plota os centroides e medianas em gráficos 2D.
-        Cada cluster é plotado com uma cor diferente
-        Entradas:
-            coords:         matriz de coordenadas (lat, longi)
-            coords_mean:    coordenadas da mediana
-            ellipse_mean:   mediana da elipse
+        Plot centroides and mean in 2D graphics.
+        Each cluster is plotted with a different color
+        Inputs:
+            coords:         coordinate array (lat, longi)
+            coords_mean:    coordinates mean
+            ellipse_mean:   ellipse mean
             clusters:       clusters
-            clindexes:      indice dos clusters (vetor)
-        Saídas:
-            plot colorido 2D dos clusters
+            clindexes:      clusters index (vector)
+        Outputs:
+            2D colored plot of clusters
     '''
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
     ax1.scatter(coords[:, 0], coords[:, 1])
@@ -133,7 +133,7 @@ def plotClusterCharts(coords, coords_mean,
     ax1.set(title='MEAN AND STANDARD DEVIATION', xlabel='LONGITUDE',ylabel='LATITUDE')
     ax1.text(coords_mean[0], coords_mean[1], 'MEAN')
 
-    # separa os clusters por cor
+    # selects each cluster's color
     for z in range(0,n_clusters):
         dataZ = np.where(clindexes==z)
         newDataX = []
@@ -158,8 +158,8 @@ def plotClusterCharts(coords, coords_mean,
 
 def printClusterCoords(clusters, rName):
     ''' printClusterCoords
-        Imprime as coordenadas centrais dos clusters
-        em uma tabela X/Y
+        Prints the central coordinates of the clusters
+        in an X / Y table
     '''
     print("-----------------------------------------------")
     print("| Clusters para a região: '%s' "%(rName))
@@ -174,27 +174,27 @@ def printClusterCoords(clusters, rName):
 
 def drawOnMap(mapCenterLat, mapCenterLong, coords, clusters, clindexes,                          n_clusters=3):
     ''' drawOnMap
-        Desenha todas as coordenadas e seus respectivos clusters
-        em um mapa centralizado em (mapCenterLat, mapCenterLong).
-        Cada cluster (e todos os pontos que pertencem a ele) 
-        recebe uma cor específica escolhida a partir de seu índice
-        Obs: o número de clusters não pode ser maior que comprimento
-        da lista de padrão de cores (PYCLUSTER_COLORS)
-        Entradas:
-            mapCenterLat, mapCenterLong:    centro do mapa;
-            coords:                         lista de pontos (lat,long)
-            clusters:                       lista de clusters
-            clindexes:                      índice dos clusters
-            n_clusters:                     número de clusters (padrão = 3)
-        Saídas:
-            mymap:                          mapa desenhado
+        Draws all coordinates and their respective clusters
+         on a map centered on (mapCenterLat, mapCenterLong).
+         Each cluster (and all points that belong to it)
+         receives a specific color chosen from its index
+         Note: the number of clusters cannot be greater than length
+         the color pattern list (PYCLUSTER_COLORS)
+         Inputs:
+             mapCenterLat, mapCenterLong: center of the map;
+             coords: list of points (lat, long)
+             clusters: list of clusters
+             clindexes: clusters index
+             n_clusters: number of clusters (default = 3)
+         Outputs:
+             mymap: drawn map
     '''
     mymap = fl.Map(location=[mapCenterLat, mapCenterLong], zoom_start=11)
     cnt = 0
     for longi, lat in coords:
-        # seleciona a cor do ponto a partir do indice do cluster
+        # select the color of the point from the cluster index
         color = PYCLUSTER_COLORS[clindexes[cnt]%n_clusters]
-        # cria o marcador
+        # creates the bookmark
         fl.CircleMarker(location=[lat, longi],
                             radius=10,
                             fill_color=color,
@@ -203,7 +203,7 @@ def drawOnMap(mapCenterLat, mapCenterLong, coords, clusters, clindexes,         
                         ).add_to(mymap)
         cnt = cnt+1
 
-    # plota os centroídes
+    # plot the centroids
     color = 'black'
     for centroid in clusters:
         longi = centroid[0]
@@ -220,40 +220,40 @@ def drawOnMap(mapCenterLat, mapCenterLong, coords, clusters, clindexes,         
 def kmeansSearchAndDisplay(regionName, regionCSVFile, nclusters, 
                            centerLongitude, centerLatitude, outdir="tmp/"):
 
-    # testa se o arquivo existe
+    # tests whether the file exists
     if os.path.isfile(regionCSVFile) is False:
         print("> CSV da região '%s' não encontrado!"%(regionName))
 
-    # Lê o arquivo csv com as coordenadas de entrada
+    # reads the csv file with the input coordinates
     coords = pd.read_csv(regionCSVFile)
-    # separa os vetores de latitude e longitude
+    # separates the latitude and longitude vectors
     lat = coords['Latitude']
     longi = coords['Longitude']
-    # empilha a matriz de coordenadas em um numpy array
+    # stacks the coordinate array in a numpy array
     coords = np.column_stack((longi, lat))
 
-    # calcula a mediana do conjunto de coordenadas
+    # calculates the mean of the coordinate set
     coords_mean = np.mean(coords, 0)
-    # calcula o desvio padrão das coordenadas
+    # calculates the standard deviation of the coordinates
     coords_std = np.std(coords, 0) 
-    # calcula a mediana da elipse circunscrita
+    # calculates the mean of the circumscribed ellipse
     ellipse_mean = patches.Ellipse([coords_mean[0], coords_mean[1]], coords_std[0]*2, coords_std[1]*2, color = 'purple', alpha = 0.1)
 
-    # encontra os nclusters para o conjunto de coordenadas
+    # finds the nclusters for the coordinate set
     clusters, clindexes = findClusters(coords, nclusters)
 
-    # imprime as coordenadas dos clusters em uma tabela
+    # prints the coordinates of the clusters in a table
     printClusterCoords(clusters, regionName)
     
 
-    # plota em gráficos 2D
+    # plot in 2D graphics
     plotClusterCharts(coords, coords_mean, ellipse_mean, clusters, 
     clindexes, nclusters, regionName, outdir)
 
-    # cria um mapa e desenha os clusters e coordenadas nele
+    # creates a map and draws the clusters and coordinates on it
     mymap = drawOnMap(centerLongitude, centerLatitude, coords, clusters, clindexes, nclusters)
     
-    # salva o mapa em um arquivo HTML
+    # saves the map to an HTML file
     if outdir is not None:
         mapFile = outdir+"/map_%s.html"%(regionName)
     else:
@@ -273,7 +273,7 @@ if __name__ == '__main__':
 
     # keywords = ['gas+station']
     keywords = ['gas+station', 'posto+gasolina']
-    radius = '10000'
+    radius = '2000'
     api_key = '' # insert your Places API here
     searchPlacesAPI(coordinates, keywords, radius, 'tmp/outSSA.csv', api_key)
     end_time = time.time()
